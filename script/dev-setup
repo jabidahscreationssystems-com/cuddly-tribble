@@ -56,8 +56,11 @@ echo ""
 
 # Run tests
 echo "🧪 Running tests..."
-go test ./... 2>&1 | head -20
-TEST_EXIT_CODE=${PIPESTATUS[0]}
+set +e
+TEST_OUTPUT=$(go test ./... 2>&1)
+TEST_EXIT_CODE=$?
+set -e
+echo "$TEST_OUTPUT" | head -20
 if [ $TEST_EXIT_CODE -eq 0 ]; then
     echo "✅ Tests passed!"
 else
