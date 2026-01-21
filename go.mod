@@ -30,7 +30,7 @@ require (
 	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510
 	github.com/gorilla/websocket v1.5.3
 	github.com/hashicorp/go-multierror v1.1.1
-	github.com/hashicorp/go-version v1.7.0
+	github.com/hashicorp/go-version v1.8.0
 	github.com/henvic/httpretty v0.1.4
 	github.com/hinshun/vt10x v0.0.0-20220119200601-820417d04eec
 	github.com/in-toto/attestation v1.1.2
