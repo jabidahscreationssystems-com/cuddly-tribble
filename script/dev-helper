@@ -1,0 +1,175 @@
+#!/bin/bash
+# Development helper script for common tasks
+# Usage: ./script/dev-helper <command>
+
+set -e
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
+
+cd "$PROJECT_ROOT"
+
+show_help() {
+    cat << EOF
+GitHub CLI Development Helper
+
+Usage: $0 <command> [options]
+
+Commands:
+    build           Build the gh binary
+    test            Run all tests
+    test-pkg        Run tests for a specific package (e.g., test-pkg pkg/cmd/pr)
+    clean           Clean build artifacts
+    fmt             Format all Go code
+    lint            Run linters (if configured)
+    run             Run gh with arguments (e.g., run --version)
+    coverage        Generate test coverage report
+    setup           Set up development environment
+    help            Show this help message
+
+Examples:
+    $0 build
+    $0 test
+    $0 test-pkg pkg/cmd/pr
+    $0 run pr list --help
+    $0 coverage
+
+EOF
+}
+
+cmd_build() {
+    echo "🔨 Building gh binary..."
+    make bin/gh
+    echo "✅ Build complete! Binary at: ./bin/gh"
+}
+
+cmd_test() {
+    echo "🧪 Running all tests..."
+    go test ./...
+    echo "✅ Tests complete!"
+}
+
+cmd_test_pkg() {
+    if [ -z "$1" ]; then
+        echo "Error: Package path required"
+        echo "Usage: $0 test-pkg <package-path>"
+        echo "Example: $0 test-pkg pkg/cmd/pr"
+        exit 1
+    fi
+    
+    echo "🧪 Running tests for $1..."
+    go test "./$1"
+    echo "✅ Tests complete!"
+}
+
+cmd_clean() {
+    echo "🧹 Cleaning build artifacts..."
+    make clean
+    rm -f coverage.out coverage.html
+    echo "✅ Clean complete!"
+}
+
+cmd_fmt() {
+    echo "📝 Formatting Go code..."
+    go fmt ./...
+    echo "✅ Formatting complete!"
+}
+
+cmd_lint() {
+    echo "🔍 Running linters..."
+    if command -v golangci-lint &> /dev/null; then
+        golangci-lint run
+        echo "✅ Linting complete!"
+    else
+        echo "⚠️  golangci-lint not installed"
+        echo "Install from: https://golangci-lint.run/usage/install/"
+        echo ""
+        echo "Running basic checks..."
+        go vet ./...
+        echo "✅ Basic checks complete!"
+    fi
+}
+
+cmd_run() {
+    if [ ! -f "./bin/gh" ]; then
+        echo "Binary not found. Building..."
+        cmd_build
+    fi
+    
+    echo "🚀 Running gh $@"
+    ./bin/gh "$@"
+}
+
+cmd_coverage() {
+    echo "📊 Generating test coverage..."
+    go test -coverprofile=coverage.out ./...
+    go tool cover -html=coverage.out -o coverage.html
+    echo "✅ Coverage report generated!"
+    echo "   Text: coverage.out"
+    echo "   HTML: coverage.html"
+    
+    if command -v open &> /dev/null; then
+        echo "Opening coverage report in browser..."
+        open coverage.html
+    elif command -v xdg-open &> /dev/null; then
+        echo "Opening coverage report in browser..."
+        xdg-open coverage.html
+    fi
+}
+
+cmd_setup() {
+    echo "🚀 Setting up development environment..."
+    if [ -f "$SCRIPT_DIR/dev-setup" ]; then
+        "$SCRIPT_DIR/dev-setup"
+    else
+        echo "Downloading dependencies..."
+        go mod download
+        echo "Building binary..."
+        cmd_build
+        echo "✅ Setup complete!"
+    fi
+}
+
+# Main command dispatcher
+COMMAND="${1:-help}"
+
+case "$COMMAND" in
+    build)
+        cmd_build
+        ;;
+    test)
+        cmd_test
+        ;;
+    test-pkg)
+        shift
+        cmd_test_pkg "$@"
+        ;;
+    clean)
+        cmd_clean
+        ;;
+    fmt)
+        cmd_fmt
+        ;;
+    lint)
+        cmd_lint
+        ;;
+    run)
+        shift
+        cmd_run "$@"
+        ;;
+    coverage)
+        cmd_coverage
+        ;;
+    setup)
+        cmd_setup
+        ;;
+    help|--help|-h)
+        show_help
+        ;;
+    *)
+        echo "Unknown command: $COMMAND"
+        echo ""
+        show_help
+        exit 1
+        ;;
+esac

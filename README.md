@@ -6,6 +6,15 @@
 
 GitHub CLI is supported for users on GitHub.com, GitHub Enterprise Cloud, and GitHub Enterprise Server 2.20+ with support for macOS, Windows, and Linux.
 
+## Quick Start
+
+New to GitHub CLI or want to contribute? Check out these resources:
+
+- **[Quick Start Guide](QUICKSTART.md)** - Get up and running in minutes
+- **[Contributing Quick Start](CONTRIBUTING_QUICKSTART.md)** - Make your first contribution
+- **[Examples](examples/)** - Sample scripts and usage examples
+- **[Development Scripts](script/)** - Helper scripts for development
+
 ## Documentation
 
 For [installation options see below](#installation), for usage instructions [see the manual]( https://cli.github.com/manual/).

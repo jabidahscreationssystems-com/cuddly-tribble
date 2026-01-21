@@ -1,0 +1,85 @@
+#!/bin/bash
+# Development Environment Setup Script for GitHub CLI
+# This script helps new contributors set up their development environment quickly
+
+set -e
+
+echo "🚀 GitHub CLI - Development Environment Setup"
+echo "=============================================="
+echo ""
+
+# Check if Go is installed
+if ! command -v go &> /dev/null; then
+    echo "❌ Error: Go is not installed"
+    echo "Please install Go 1.24.0 or later from https://golang.org/dl/"
+    exit 1
+fi
+
+# Check Go version
+GO_VERSION=$(go version | awk '{print $3}' | sed 's/go//')
+echo "✅ Go version: $GO_VERSION"
+
+# Check if Git is installed
+if ! command -v git &> /dev/null; then
+    echo "❌ Error: Git is not installed"
+    exit 1
+fi
+
+echo "✅ Git is installed"
+
+# Verify we're in the right directory
+if [ ! -f "go.mod" ]; then
+    echo "❌ Error: Not in the project root directory"
+    echo "Please run this script from the project root"
+    exit 1
+fi
+
+echo "✅ In project root directory"
+echo ""
+
+# Download dependencies
+echo "📦 Downloading Go dependencies..."
+go mod download
+echo "✅ Dependencies downloaded"
+echo ""
+
+# Build the binary
+echo "🔨 Building gh binary..."
+make bin/gh
+if [ $? -eq 0 ]; then
+    echo "✅ Build successful!"
+else
+    echo "❌ Build failed"
+    exit 1
+fi
+echo ""
+
+# Run tests
+echo "🧪 Running tests..."
+set +e
+TEST_OUTPUT=$(go test ./... 2>&1)
+TEST_EXIT_CODE=$?
+set -e
+echo "$TEST_OUTPUT" | head -20
+if [ $TEST_EXIT_CODE -eq 0 ]; then
+    echo "✅ Tests passed!"
+else
+    echo "⚠️  Some tests may have failed (this is common in a fresh clone)"
+fi
+echo ""
+
+# Check binary
+if [ -f "./bin/gh" ]; then
+    echo "🎉 Setup complete!"
+    echo ""
+    echo "Your development environment is ready. You can now:"
+    echo "  • Run the CLI: ./bin/gh --version"
+    echo "  • Run tests: make test"
+    echo "  • Build: make bin/gh"
+    echo "  • Clean: make clean"
+    echo ""
+    echo "For more information, see QUICKSTART.md"
+else
+    echo "❌ Binary not found. Please check the build output for errors."
+    exit 1
+fi
