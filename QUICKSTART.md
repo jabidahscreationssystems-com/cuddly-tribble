@@ -13,8 +13,9 @@ Welcome to the GitHub CLI project! This guide will help you get up and running q
 ### 1. Clone and Build
 
 ```bash
-# The repository is already cloned
-cd /home/runner/work/cuddly-tribble/cuddly-tribble
+# Clone the repository
+git clone https://github.com/cli/cli.git
+cd cli
 
 # Build the CLI
 make bin/gh
