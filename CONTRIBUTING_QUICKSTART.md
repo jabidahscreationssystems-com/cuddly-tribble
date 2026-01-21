@@ -8,8 +8,8 @@ Thank you for your interest in contributing to the GitHub CLI! This guide will h
 
 ```bash
 # Fork the repository on GitHub first, then:
-git clone https://github.com/YOUR-USERNAME/cuddly-tribble.git
-cd cuddly-tribble
+git clone https://github.com/YOUR-USERNAME/cli.git
+cd cli
 ```
 
 ### 2. Set Up Development Environment
